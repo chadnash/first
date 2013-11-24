@@ -1,0 +1,2 @@
+g = Greeter.new("Pat")
+g.sayHi
