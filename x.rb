@@ -22,6 +22,8 @@ class Z
   end
 
 end
-g = Z.new "Pat"
-g.sayHi
+if __FILE__ == $0
+  g = Z.new "Pat"
+  g.sayHi
+end
 
