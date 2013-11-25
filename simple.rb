@@ -3,10 +3,9 @@
 
 class Robot
   North,South,East,West="NORTH","SOUTH","EAST","WEST"
-  attr_reader :reports
   def initialize()
     @isOnTable=false
-    @reports=""
+    @reports=nil
   end
 
   def leftIfOnTable
@@ -63,12 +62,10 @@ class Robot
   end
 
   def reportIfOnTable()
+    return unless @isOnTable
+
     report =  "#@x,#@y,#@heading"
-    if reports.size == 0 then
-      reports= report
-    else
-      reports << "\n${report}"
-    end
+
 
     puts  report
   end
@@ -81,8 +78,10 @@ class Robot
     end
 
   end
-  def executeCommand(command)
-    commandElements =  command.split(",")
+  def executeCommand(command )
+    #puts "command=#{command}"
+    #puts "@isOnTable=#@isOnTable"
+    commandElements =  command.strip.split(/[ ,]/)
     commandName = commandElements.first.strip
 
     #ensure non-valid single word commands are ignored
@@ -126,8 +125,25 @@ class Robot
   end
 
 end
+
 require "test/unit"
-class TestRobot
+class TestRobot  < Test::Unit::TestCase
+  StdoutStandinFilename = "out.txt"
+  def initialize(name)
+    super(name)
+    @stdoutStandIn = File.open(StdoutStandinFilename,"w")
+    $stdout=  @stdoutStandIn
+    #$stdout.reopen(StdoutStandinFilename, "w")
+  end
+  def contentOfStdoutOverTest()
+    $stdout=STDOUT
+    @stdoutStandIn.close
+    f = File.open(StdoutStandinFilename,"rb")
+    contents = f.read
+    f.close
+
+    return contents
+  end
   def testSpecCaseA
     r= Robot.new
     r.executeCommands <<-EOF
@@ -135,9 +151,9 @@ class TestRobot
       MOVE
       REPORT
     EOF
-    assert_equal( r.reports , <<-EOF )
-        0,1,NORTH
-      EOF
+    #puts  "r.reports=#{r.reports}"
+    assert_equal(  "0,1,NORTH\r\n",contentOfStdoutOverTest )
+
   end
   def testSpecCaseB
     r= Robot.new
@@ -146,9 +162,9 @@ class TestRobot
       LEFT
       REPORT
     EOF
-    assert_equal( r.reports , <<-EOF )
-        0,0,WEST
-    EOF
+
+    assert_equal(  "0,0,WEST\r\n" ,contentOfStdoutOverTest )
+
   end
 
 
@@ -162,12 +178,8 @@ class TestRobot
       MOVE
       REPORT
     EOF
-    assert_equal( r.reports , <<-EOF )
-        3,3,NORTH
-    EOF
+    assert_equal( "3,3,NORTH\r\n",contentOfStdoutOverTest )
+
   end
 end
 
-if __FILE__ == $0 then
-  TestRobot.new.testSpecCaseA
-end
