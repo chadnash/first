@@ -1,7 +1,8 @@
 require "test/unit"
 require_relative "simple"
+require_relative "allclasses"
 class TestRobot  < Test::Unit::TestCase
-  @@RobotClass = Robot
+  @@RobotClass = Robot2
   def self.newRobot
     return @@RobotClass.new
   end
@@ -72,6 +73,23 @@ class TestRobot  < Test::Unit::TestCase
     commands = commands  + (["LEFT"]*(-excessOfLefts)) if    excessOfLefts<0
     commands = commands  << "REPORT"
     assert_equal(TestRobot.newRobot.executeCommands(commands),["0,1,WEST"])
+  end
+
+  def testSquare()
+    r= TestRobot.newRobot
+    reports=r.executeCommands <<-EOF
+      PLACE 2,2,NORTH
+      MOVE
+      LEFT
+      MOVE
+      LEFT
+      MOVE
+      LEFT
+      MOVE
+      LEFT
+      REPORT
+    EOF
+    assert_equal( ["2,2,NORTH"] ,reports )
   end
 end
 

@@ -10,8 +10,6 @@ class Robot
       report= r.executeCommand(cmd)
       puts report unless report.nil?
     end
-
-
   end
 
   def initialize()

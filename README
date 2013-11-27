@@ -1,1 +1,13 @@
-This file was created by JetBrains RubyMine 5.4.3.2.1 for binding GitHub repository
+There are two implementations in simple.rb and allclasses.rb
+Both can be run from test_robot the robot that is run is determined by the value
+of TestRobot::@@RobotClass  valid values are  Robot or Robot2
+
+Robot in simple.rb is uses
+  case statements  which have the advantage that the set of alternatives can be easily compared.
+
+Robot2 in allclasses.rb is an example of using double dispatching between the command,heading ad the robot
+  The purpose of this example to be the construction of more elaborate consistency checks fore example I anticipated building
+  random command sequence and then calculating a reversing command sequence and then seeing if the robot got back to the start.
+
+I have not tested the robot against each other.
+
