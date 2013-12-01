@@ -14,6 +14,10 @@
         all = all | subclass.allDescendantsSince}
       return all
     end
+    def randomSubclass
+      allDescendantsSince().randomElement;
+
+    end
 
     def inherited(subclass)
       #not sure how to force any other implementation of inherited to be called as well
@@ -27,11 +31,50 @@
       def collect_if_not_nil(&elementToCollectBlock)
           return self.collect(&elementToCollectBlock).select {|e| !e.nil?}
       end
+      def randomElement
+        return self[rand(self.size)]
+      end
+  end
+
+  class String
+    def asCommand
+      return Command.fromStringOrNil(self)
+    end
+    def randomishChange
+       return randomOneCharChange if rand(5)==0
+       return ""
+    end
+    def randomOneCharChange
+      changed=self.clone
+
+      if rand(3)==0   # 1 time in 3 replace a character
+         changed[rand(changed.size)]= String.randomAsciiOfLength(1)
+      elsif rand(2)==0 # 1 time in 3 delete a character - there are two chances left
+         changed[rand(changed.size)]=''
+
+      else    #  1 time in 3 add a character
+        index = rand(changed.size)
+        changed[index]= (changed[index]<< String.randomAsciiOfLength(1))
+      end
+
+
+      return changed
+
+    end
+    def self.randomAsciiOfLength(length)
+      raise "cant be zero or negative length"   if length<1
+      return rand(128).chr if length ==1
+      return randomAsciiOfLength(length-1)<< randomAsciiOfLength(1)
+
+
+    end
+
   end
   class Command
 
     def self.fromStringOrNil(s)
       commandElements =  s.strip.split(/[ ,]/)
+      return nil if commandElements.size<1
       commandName = commandElements.first.strip
       commands = self.allDescendantsSince.collect_if_not_nil {
           |clazz|
@@ -41,6 +84,19 @@
       return commands.first if commands.size==1
       return nil
     end
+    def asCommand()
+      return self
+    end
+    def self.randomCommandInputLine
+      randomCommandType= self.randomSubclass
+      while randomCommandType.equal?(Place) && rand(10)!=0
+        randomCommandType= self.randomSubclass    #only choose place 1 in 10 times it is chosen
+      end
+      inputLine = randomCommandType.randomInputLine()
+      inputLine=inputLine.randomishChange() if rand(10)==0
+      return inputLine
+    end
+
 
   end
 
@@ -61,6 +117,9 @@
       return nil  if  heading.nil? || position.nil?  || position.notOnTable?
       return self.new(heading,position)
     end
+    def self.randomInputLine()
+      return "PLACE #{rand(8)-1},#{rand(8)-1},#{Heading.random}"
+    end
 
 
   end
@@ -72,6 +131,9 @@
       return nil if commandName != "MOVE" || commandElements.size>1
       return Move.new()
     end
+    def self.randomInputLine()
+      return "MOVE"
+    end
   end
   class Report < Command
     def executeOn(robot)
@@ -80,6 +142,9 @@
     def self.fromCommandNameAndCommandElementsOrNil(commandName,commandElements)
       return nil if commandName != "REPORT" || commandElements.size>1
       return Report.new()
+    end
+    def self.randomInputLine()
+      return "REPORT"
     end
   end
   class Left < Command
@@ -90,6 +155,9 @@
       return nil if commandName != "LEFT" || commandElements.size>1
       return Left.new()
     end
+    def self.randomInputLine()
+      return "LEFT"
+    end
   end
   class Right < Command
     def executeOn(robot)
@@ -98,6 +166,9 @@
     def self.fromCommandNameAndCommandElementsOrNil(commandName,commandElements)
       return nil if commandName != "RIGHT" || commandElements.size>1
       return Right.new()
+    end
+    def self.randomInputLine()
+      return "RIGHT"
     end
   end
 
@@ -109,9 +180,11 @@
       @@headings ||=[]
       return @@headings
     end
+    def self.random
+      return @@headings.randomElement
+    end
     def initialize()
        self.class.headings<<self
-
     end
 
     def self.fromStringOrNil(s)
@@ -271,8 +344,6 @@ def place(headingX,positionX)
       return nil
     end
 
-
-
     def moveIfOnTable()
       @position = @position.moved(@heading) if onTable
       #puts "at end of #{__method__}  robot = #{self.to_s}"
@@ -299,26 +370,56 @@ def place(headingX,positionX)
   class Commands
     include Enumerable
     def initialize(commands)
-       @commands=commands.collect_if_not_nil{|c| Command.fromStringOrNil(c)}
+       @commands=commands.collect_if_not_nil{|c|
+         if c.nil?
+           puts c
+         end
+         c.asCommand
+       }
     end
     def each(&block)
       @commands.each(&block)
     end
     def executeOn(robot)
       return @commands.collect_if_not_nil {|c| c.executeOn(robot)}
-      puts "hi"
+      #puts "hi"
     end
     def self.fromString(s)
       commands = s.split("\n")
       return self.new(commands)
     end
+    def self.newRandom
+      cmds  = 1.to(rand(200)).collect {Command.newRandom}
+      return Commands.new(cmds)
+    end
+    def self.randomCommandsInput
+      input = ""
+
+      lines = (1..rand(200)).collect {|i| Command.randomCommandInputLine}
+      if (lines.select {|line| !line.index("PLACE").nil?}).size==0
+        lines[rand(lines.size)] = Place.randomInputLine  unless rand(5)==0 # ensure there is a place command  most of the time
+      end
+      lines.each {
+      |cmdInput|
+        if input.nil?
+          input=cmdInput
+        else
+          input=input << "\n#{cmdInput}"
+        end
+      }
+      return input
+    end
+
   end
 
 
   if __FILE__ == $0
     #puts Robot2.new.executeCommands ["PLACE 0,1,WEST", "MOVE", "REPORT"]
+   # puts String.randomAsciiOfLength(1)
     Robot2.run
+
   end
+
 
 
 

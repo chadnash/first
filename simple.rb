@@ -99,6 +99,7 @@ class Robot
     #puts "command=#{command}"
     #puts "@isOnTable=#@isOnTable"
     commandElements =  command.strip.split(/[ ,]/)
+    return if commandElements.size<1
     commandName = commandElements.first.strip
 
     #ensure non-valid single word commands are ignored

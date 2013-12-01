@@ -5,9 +5,15 @@ of TestRobot::@@RobotClass  valid values are  Robot or Robot2
 Robot in simple.rb is uses
   case statements  which have the advantage that the set of alternatives can be easily compared.
 
-Robot2 in allclasses.rb is an example of using double dispatching between the command,heading ad the robot
+Robot2 in allclasses.rb is an example of using double dispatching between the command,heading and the robot
   The purpose of this example to be the construction of more elaborate consistency checks fore example I anticipated building
   random command sequence and then calculating a reversing command sequence and then seeing if the robot got back to the start.
 
-I have not tested the robot against each other.
+  I did build random command sequences - include ones with errors.
+
+I used the random command sequences to run the robots against each other for very many different command sequences
+
+Originally I had testing capturing stdout and comparing this to what was expected. I changed this as I though it was overkill
+on reflection stdout (and stdin) is what the system is supposed to deal with and as inadvertent debug puts would have broken the system
+I now believe it to be a good idea.
 
