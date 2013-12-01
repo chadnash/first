@@ -6,7 +6,7 @@ Robot in simple.rb is uses
   case statements  which have the advantage that the set of alternatives can be easily compared.
 
 Robot2 in allclasses.rb is an example of using double dispatching between the command,heading and the robot
-  The purpose of this example to be the construction of more elaborate consistency checks fore example I anticipated building
+  The purpose of this example to be the construction of more elaborate consistency checks for example I anticipated building
   random command sequence and then calculating a reversing command sequence and then seeing if the robot got back to the start.
 
   I did build random command sequences - include ones with errors.
