@@ -15,5 +15,5 @@ I used the random command sequences to run the robots against each other for ver
 
 Originally I had testing capturing stdout and comparing this to what was expected. I changed this as I though it was overkill
 on reflection stdout (and stdin) is what the system is supposed to deal with and as inadvertent debug puts would have broken the system
-I now believe it to be a good idea.
+I now believe it to be a good idea..
 
